@@ -5,7 +5,7 @@ class XORClassifier:
     def __init__(self, learning_rate):
         self.learning_rate = learning_rate
         
-        self.weights_hidden_layer = [[random.uniform(-1, 1)], [random.uniform(-1, 1)], [random.uniform(-1, 1)], [random.uniform(-1, 1)]]
+        self.weights_hidden_layer = [[random.uniform(-1, 1), random.uniform(-1, 1)], [random.uniform(-1, 1), random.uniform(-1, 1)]]
         self.bias_hidden_layer = [random.uniform(-1, 1), random.uniform(-1, 1)]
         # weights_hidden_layer[0] corresponds to the weights that are going into the first hidden layer neuron. This is the standard notation.
         # there are as many vectors in the weight matrix of a layer as the number of neurons in that layer. 
@@ -69,18 +69,18 @@ class XORClassifier:
 
         self.weights_output_layer[0][0] -= self.output_hidden_layer[0] * self.learning_rate * self.d_output_layer
         self.weights_output_layer[0][1] -= self.output_hidden_layer[1] * self.learning_rate * self.d_output_layer
-        self.bias_output_layer -= self.learning_rate * self.d_output_layer
+        self.bias_output_layer[0] -= self.learning_rate * self.d_output_layer
         # Updated output layer neuron.
 
 
-        self.weights_hidden_layer[0][0] -= inputs[0] * self.learning_rate * self.d_output_layer
-        self.weights_hidden_layer[0][1] -= inputs[1] * self.learning_rate * self.d_output_layer
+        self.weights_hidden_layer[0][0] -= inputs[0] * self.learning_rate * self.d_hidden_layer[0]
+        self.weights_hidden_layer[0][1] -= inputs[1] * self.learning_rate * self.d_hidden_layer[0]
         self.bias_hidden_layer[0] -= self.learning_rate * self.d_hidden_layer[0]
         # Updated first hidden layer neuron.
 
 
-        self.weights_hidden_layer[1][0] -= inputs[0] * self.learning_rate * self.d_output_layer
-        self.weights_hidden_layer[1][1] -= inputs[1] * self.learning_rate * self.d_output_layer
+        self.weights_hidden_layer[1][0] -= inputs[0] * self.learning_rate * self.d_hidden_layer[1]
+        self.weights_hidden_layer[1][1] -= inputs[1] * self.learning_rate * self.d_hidden_layer[1]
         self.bias_hidden_layer[1] -= self.learning_rate * self.d_hidden_layer[1]
         # Updated second hidden layer neuron.
 
@@ -111,18 +111,17 @@ if __name__ == '__main__':
     xor_inputs = [[0,0], [0,1], [1,0], [1,1]]
     xor_outputs = [0, 1, 1, 0]
 
-    xor_classifier = XORClassifier(learning_rate = 0.01)
+    xor_classifier = XORClassifier(learning_rate = 0.1)
 
-    xor_classifier.train(xor_inputs, xor_outputs, epochs = 50000)
+    xor_classifier.train(xor_inputs, xor_outputs)
 
-    print("Training complete. Live-testing model performance... Enter two numbers: \n")
+    print("Training complete. Testing model performance... \n")
 
-    while again == True:
-        live_input = [0.0, 0.0]
-        live_input[0] = float(input("Enter first bit - \n"))
-        live_input[1] = float(input("Enter second bit - \n"))
-
-        result = xor_classifier.forward_pass(live_input)
-        print(f"Classifier output: {result}")
-
-        again = bool(input("Want to try it again? (True/False)"))
+    for input, target in zip(xor_inputs, xor_outputs):
+        output = xor_classifier.forward_pass(input)
+        if output > 0.5:
+            output_val = 1
+        else:
+            output_val = 0
+        
+        print(f"Input = {input}, Classifier output = {output_val}, Target output = {target}")
